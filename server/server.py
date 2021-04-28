@@ -53,11 +53,11 @@ with open(filename, "wb") as f:
 key = b'Sixteen byte key'
 
 file_in = open("enc.bin", "rb")
-nonce, tag, ciphertext = [ file_in.read(x) for x in (16, 16, -1) ]
+nonce, ciphertext = [ file_in.read(x) for x in (16, -1) ]
 
 # let's assume that the key is somehow available again
 cipher = AES.new(key, AES.MODE_EAX, nonce)
-data = cipher.decrypt_and_verify(ciphertext, tag)
+data = cipher.decrypt(ciphertext)
 
 with open('dec.txt', "wb") as f2:
     f2.write(data)
