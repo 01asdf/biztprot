@@ -12,7 +12,7 @@ with open('data.csv', mode='rb') as file: # b is important -> binary
     data = file.read()
 key = b'Sixteen byte key'
 cipher = AES.new(key, AES.MODE_EAX)
-ciphertext, tag = cipher.encrypt(data)
+ciphertext = cipher.encrypt(data)
 file_out = open("enc.bin", "wb")
 [ file_out.write(x) for x in (cipher.nonce, ciphertext) ]
 file_out.close()
@@ -23,7 +23,7 @@ file_out.close()
 SEPARATOR = "<SEPARATOR>"
 BUFFER_SIZE = 4096 # send 4096 bytes each time step
 # the ip address or hostname of the server, the receiver
-host = "192.168.0.144"
+host = "192.168.0.36"
 # the port, let's use 5001
 port = 5001
 # the name of file we want to send, make sure it exists
