@@ -83,8 +83,8 @@ def main():
         encryptedInitMessage = cipher_rsa.encrypt(initMessage.encode())
 
         actuals.socket.send(encryptedInitMessage)
-        aaa = waitForMessage(actuals.socket)
-        answer = onReceive(aaa, "AES", actuals.AES_key)
+        answer_binary = waitForMessage(actuals.socket)
+        answer = onReceive(answer_binary, "AES", actuals.AES_key)
 
     order = ""
     while order != "Exit":
@@ -92,6 +92,8 @@ def main():
         order = orders()
         if order is not None:
             sendMessage(actuals.socket, order, "AES", actuals.AES_key)
+            answer_binary = waitForMessage(actuals.socket)
+            print(onReceive(answer_binary, "AES", actuals.AES_key))
 
 
 if __name__ == "__main__":

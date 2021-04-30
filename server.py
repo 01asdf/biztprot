@@ -14,6 +14,8 @@ from Server_functions import onReceive, sendMessage, sendFile_AES, waitForMessag
 
 
 def make_folder(folder_path):
+    print("MAKE FOLDER")
+    print(folder_path)
     if not exists(folder_path):
         os.makedirs(folder_path)
 
@@ -78,10 +80,10 @@ def order_parse_and_doit(order):
         actuals.last_order_count = order_count
 
         if message[0] == "MKD":
-            make_folder(actuals.path+"/"+order[1])
+            make_folder(actuals.path+"/"+message[1])
             return "Done"
         if message[0] == "RMD":
-            delete_folder(actuals.path+"/"+order[1])
+            delete_folder(actuals.path+"/"+message[1])
             return "Done"
         if message[0] == "GWD":
             return actuals.path
@@ -97,7 +99,7 @@ def order_parse_and_doit(order):
             sendFile_AES(actuals.socket, message[1], actuals.AES_key)
             return "Done"
         if message[0] == "RMF":
-            delete_folder(actuals.path+"/"+order[1])
+            delete_folder(actuals.path+"/"+message[1])
             return "Done"
         else:
             return "Unknown command"
