@@ -1,20 +1,13 @@
-import hashlib
 import shutil
 import socket
-import tqdm
-import os
-from Crypto.Cipher import AES
-import time
 import Crypto
-
 import services
 from config import data as config_data
 import os
 from os.path import exists as exists
-import pathlib
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
-
+import Server_functions
 
 
 def make_folder(folder_path):
@@ -39,7 +32,7 @@ def rsa_decode(encryptedRSAmessage): # bináris üzenetet vár, visszatér a dek
     decryptedMessage = cipher_rsa.decrypt(encryptedRSAmessage)    
     return decryptedMessage.decode()
 
-def has_acces_to_file(user, path):
+def has_acces_to_file(path):
     if source_directory()+"/"+actuals.user in path:
         return True
     return False
@@ -50,6 +43,7 @@ class actuals:
     roote_path = source_directory()
     last_order_count = None
     AES_key = None
+    socket = None
 
 
 def to_directory(path):
@@ -167,6 +161,11 @@ def main():
 
         #A client_socket a csatlakozott kliensel nyitott kapcsolat
         client_socket, address = s.accept()
+
+        actuals.socket = client_socket
+
+        
+
 
 
         login()
