@@ -48,8 +48,15 @@ class actuals:
     AES_key = None
     socket = None
 
+def path_remove(path):
+    char ='1'
+    while char !='/':
+        char = path.pop()
+    return path
 
 def to_directory(path):
+    if path == "..":
+        actuals.path = path_remove(actuals.path)
     if has_acces_to_file(path):
         actuals.path = path
 
@@ -89,12 +96,12 @@ def order_parse_and_doit(order):
         if message[0] == "GWD":
             return actuals.path.replace(actuals.roote_path,"")
         if message[0] == "CWD":
-            to_directory(actuals.path,message[1])
+            to_directory(message[1])
             return "Done"
         if message[0] == "LST":
             return ",".join(list_directory(actuals.path))
         if message[0] == "UPL":
-            waitForMessage(actuals.socket, message[1], actuals.path, actuals.AES_key)
+            waitForFile(actuals.socket, message[1], actuals.path, actuals.AES_key)
             return "Done"
         if message[0] == "DNL":
             sendFile_AES(actuals.socket, message[1], actuals.AES_key)
