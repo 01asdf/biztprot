@@ -127,7 +127,7 @@ def login(login_message):
     h_obj = Crypto.Hash.SHA3_256.new()
     h_obj.update(",".join(message))
     actuals.user = h_obj.hexdigest()
-    to_directory(actuals.user)
+    #to_directory(actuals.user)
 
     return "Loged in"
 
