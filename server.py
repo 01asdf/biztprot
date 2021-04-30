@@ -1,3 +1,4 @@
+import base64
 import shutil
 import socket
 import Crypto
@@ -5,6 +6,8 @@ import services
 from config import data as config_data
 import os
 from os.path import exists as exists
+from Crypto.Hash import SHA3_256
+
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Server_functions import onReceive, sendMessage, sendFile_AES, waitForMessage, waitForFile
@@ -58,8 +61,8 @@ def order_parse_and_doit(order):
 
     #Hash levétel és ellenőrzés
     hash = message.pop()
-    h_obj = Crypto.Hash.SHA3_256.new()
-    h_obj.update(",".join(message))
+    h_obj = SHA3_256.new()
+    h_obj.update(",".join(message).encode())
     if h_obj.hexdigest() != hash:
         return "Error: Hash"
 
@@ -105,8 +108,8 @@ def message_to_client(string):
 def login(login_message):
     message=login_message.split(",")
     hash = message.pop()
-    h_obj = Crypto.Hash.SHA3_256.new()
-    h_obj.update(",".join(message))
+    h_obj = SHA3_256.new()
+    h_obj.update(",".join(message).encode())
     if h_obj.hexdigest() != hash:
         return "Error: Hash"
     #Timestamp ellenőrzés
@@ -120,12 +123,16 @@ def login(login_message):
     actuals.last_order_count = 0
 
     AES_key = message.pop()
+    print(AES_key)
+    print(len(AES_key))
     if len(AES_key) != 32:
         return "Error:  AES key not 256 bit long"
 
+    actuals.AES_key = base64.decode(AES_key)
+
     #Csak a jelszó maradt a messageben
-    h_obj = Crypto.Hash.SHA3_256.new()
-    h_obj.update(",".join(message))
+    h_obj = SHA3_256.new()
+    h_obj.update(",".join(message).encode())
     actuals.user = h_obj.hexdigest()
     #to_directory(actuals.user)
 
@@ -162,9 +169,12 @@ def main():
         #Amíg valaki be nem jelentkezik
         while actuals.user == None:
             login_binari = waitForMessage(actuals.socket)
-            login_string = onReceive(login_binari,"RSA")
+            login_string = rsa_decode(login_binari)
 
-            message_to_client(login(login_string))
+            l=login(login_string)
+            print(l)
+            print(actuals.AES_key)
+            message_to_client(l)
 
         #Amíg a user ki nem lép
         while True:
