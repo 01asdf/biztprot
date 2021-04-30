@@ -94,7 +94,7 @@ def main():
             sendMessage(actuals.socket, order, "AES", actuals.AES_key)
             answer_binary = waitForMessage(actuals.socket)
             answer = onReceive(answer_binary, "AES", actuals.AES_key)
-            if answer == "AMITAKRASZ":
+            if answer == "WAIT FILE":
                 print()
             else:
                 print(answer)

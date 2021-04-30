@@ -208,7 +208,7 @@ def main():
                 message_to_client(answre)
 
                 if answre == "WAIT FILE":
-                    waitForFile(actuals.socket, message[1], actuals.path, actuals.AES_key)
+                    waitForFile(actuals.socket, actuals.waited_file, actuals.path, actuals.AES_key)
 
 if __name__ == "__main__":
     main()
