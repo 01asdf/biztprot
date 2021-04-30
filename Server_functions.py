@@ -1,7 +1,7 @@
+from Crypto.Cipher import AES
 def sendMessage(socket,string,enc_type,key=bytes(),BUFFER_SIZE=int(4096)):
     bin_rep = string.encode()
     if(enc_type=="AES"):
-        key = b'Sixteen byte key' #valahonnan kell a kulcs
         cipher = AES.new(key, AES.MODE_EAX)
         ciphertext, tag = cipher.encrypt_and_digest(bin_rep)
         socket.send(cipher.nonce,tag,ciphertext);
@@ -16,8 +16,7 @@ def sendFile_AES(socket,filename,key=bytes(),BUFFER_SIZE=int(4096)): #előtte ü
     # filesize = os.path.getsize(filename)
     with open(filename, mode='rb') as file: # b is important -> binary
         data = file.read()
-    
-    key = b'Sixteen byte key' #valahonnan vagy paraméterből
+
     encfile = "enc.bin"
     cipher = AES.new(key, AES.MODE_EAX)
     ciphertext, tag = cipher.encrypt_and_digest(data)
@@ -40,14 +39,14 @@ def onReceive(bindata,enc_type,key=bytes()):
     if(enc_type=="AES"):
         cipher = AES.new(key, AES.MODE_EAX)
         raw = cipher.decrypt(bindata)
-        return raw
+        return raw.decode()
     if(enc_type=="RSA"):
         pass #RSA decrypt a privát kulccsal
         #return decrypted
     if(enc_type=="RAW"):
         return bindata.decode()
 
-def waitForFile(client_socket,filename,directory,key=bytes()):
+def waitForFile(client_socket,filename,directory,key=bytes(),BUFFER_SIZE=int(4096)):
     with open('todec.bin', "wb") as f: #directory-t is bele kell tenni
         while True:
             bytes_read = client_socket.recv(BUFFER_SIZE)
@@ -62,6 +61,6 @@ def waitForFile(client_socket,filename,directory,key=bytes()):
     
     cipher = AES.new(key, AES.MODE_EAX, nonce)
     data = cipher.decrypt_and_verify(ciphertext, tag)
-    with open(filename, "wb") as f2:
+    with open(directory+"/"+filename, "wb") as f2:
        f2.write(data)
     print("Fajl erkezett "+filename+" neven!")
