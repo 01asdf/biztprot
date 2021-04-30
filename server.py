@@ -25,8 +25,6 @@ def source_directory():
     return os.getcwd()
 
 def list_directory(path):
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    print(path)
     if exists(path):
         return os.listdir(path)
     else:
@@ -56,12 +54,9 @@ class actuals:
 
 def path_remove(path):
     char ='1'
-    print("AAAAAAAAAAAAAAAAAa")
-    print(path)
     while char !='/':
         char = path[len(path)-1]
         path=path[:len(path)-1]
-    print(path)
     return path
 
 def to_directory(path):
@@ -75,7 +70,9 @@ def login_directory():
     make_folder(actuals.user)
     actuals.path = actuals.path+"/"+actuals.user
 
-
+def deletefile(path):
+    if os.path.exists(path):
+        os.remove(path)
 
 def order_parse_and_doit(order):
     message=order.split(",")
@@ -122,7 +119,7 @@ def order_parse_and_doit(order):
             sendFile_AES(actuals.socket, message[1], actuals.AES_key)
             return "Done"
         if message[0] == "RMF":
-            delete_folder(actuals.path+"/"+message[1])
+            deletefile(actuals.path+"/"+message[1])
             return "Done"
         else:
             return "Unknown command"
@@ -209,7 +206,11 @@ def main():
 
                 if answre == "Exit":
                     actuals.user=None
-                    return
+                    actuals.path = source_directory()
+                    actuals.AES_key = None
+                    actuals.socket.close()
+                    actuals.socket=None
+                    break
                 message_to_client(answre)
 
                 if answre == "WAIT FILE":

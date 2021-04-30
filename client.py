@@ -119,7 +119,7 @@ def main():
                             break
                         actuals.socket.sendall(bytes_read)
             else:
-                #print(answer)
+                print(answer)
 
 
 if __name__ == "__main__":
