@@ -4,6 +4,8 @@ from config import data as config_data
 import os
 from os.path import exists as exists
 import pathlib
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES, PKCS1_OAEP
 
 
 def make_folser(folder_path):
@@ -20,6 +22,15 @@ def source_directory():
 def list_directory(path):
     return os.listdir(path)
 
+def rsa_decode(encryptedRSAmessage): # bináris üzenetet vár
+    privkey_file = open('privatekey.pem','r')
+    RSAkey = RSA.import_key(privkey_file.read())
+
+    cipher_rsa = PKCS1_OAEP.new(RSAkey)
+    decryptedMessage = cipher_rsa.decrypt(encryptedRSAmessage)
+
+    return decryptedMessage.decode()
+
 
 def main():
     while True:
@@ -33,3 +44,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
