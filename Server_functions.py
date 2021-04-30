@@ -1,6 +1,8 @@
 from Crypto.Cipher import AES
 def sendMessage(socket,string,enc_type,key=bytes(),BUFFER_SIZE=int(4096)):
     bin_rep = string.encode()
+    print("-------------------------------------------")
+    print(key)
     if(enc_type=="AES"):
         cipher = AES.new(key, AES.MODE_EAX)
         ciphertext, tag = cipher.encrypt_and_digest(bin_rep)
@@ -37,8 +39,11 @@ def sendFile_AES(socket,filename,key=bytes(),BUFFER_SIZE=int(4096)): #előtte ü
 
 def onReceive(bindata,enc_type,key=bytes()):
     if(enc_type=="AES"):
-        cipher = AES.new(key, AES.MODE_EAX)
-        raw = cipher.decrypt(bindata)
+        nonce = bindata[0:16]
+        tag = bindata[16:32]
+        ciphertext = bindata[32:]
+        cipher = AES.new(key, AES.MODE_EAX, nonce)
+        raw = cipher.decrypt_and_verify(ciphertext,tag)
         return raw.decode()
     if(enc_type=="RSA"):
         pass #RSA decrypt a privát kulccsal
