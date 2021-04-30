@@ -25,7 +25,10 @@ def source_directory():
     return os.getcwd()
 
 def list_directory(path):
-    return os.listdir(path)
+    if exists(path):
+        return os.listdir(path)
+    else:
+        return []
 
 def rsa_decode(encryptedRSAmessage): # bináris üzenetet vár, visszatér a dekódolt stringgel
     privkey_file = open('privatekey.pem','r')
@@ -47,17 +50,20 @@ class actuals:
     last_order_count = None
     AES_key = None
     socket = None
+    waited_file=None
 
 def path_remove(path):
     char ='1'
+    print(path)
     while char !='/':
-        char = path.pop()
+        char = path[len(path)-1]
+        path=path[:len(path)-1]
     return path
 
 def to_directory(path):
-    if path == "..":
-        actuals.path = path_remove(actuals.path)
-    if has_acces_to_file(path):
+    if path == ".." and path!= actuals.roote_path:
+        actuals.path = path_remove(actuals.roote_path+"/"+actuals.path)
+    if has_acces_to_file(actuals.path+"/"+path):
         actuals.path = path
 
 def login_directory():
@@ -99,10 +105,14 @@ def order_parse_and_doit(order):
             to_directory(message[1])
             return "Done"
         if message[0] == "LST":
-            return ",".join(list_directory(actuals.path))
+            list = list_directory(actuals.path)
+            if len(list) !=0:
+                return ",".join(list)
+            else:
+                return "Empty"
         if message[0] == "UPL":
-            waitForFile(actuals.socket, message[1], actuals.path, actuals.AES_key)
-            return "Done"
+            actuals.waited_file=message[1]
+            return "WAIT FILE"
         if message[0] == "DNL":
             sendFile_AES(actuals.socket, message[1], actuals.AES_key)
             return "Done"
@@ -187,16 +197,18 @@ def main():
             order_binary = waitForMessage(actuals.socket)
             if order_binary != b'':
                 order_string = onReceive(order_binary, "AES", actuals.AES_key)
-                print("ORDER STRING")
-                print(order_string)
                 #adat feldolgozása
 
                 answre=order_parse_and_doit(order_string)
+
 
                 if answre == "Exit":
                     actuals.user=None
                     return
                 message_to_client(answre)
+
+                if answre == "WAIT FILE":
+                    waitForFile(actuals.socket, message[1], actuals.path, actuals.AES_key)
 
 if __name__ == "__main__":
     main()
