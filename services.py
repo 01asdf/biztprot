@@ -8,7 +8,6 @@ def current_time_milis():
     return round(time.time()*1000)
 
 def listening(port):
-    print("Serverthread start")
     # device's IP address
     SERVER_HOST = "0.0.0.0"
     SERVER_PORT = port
