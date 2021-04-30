@@ -54,8 +54,9 @@ def to_directory(path):
 
 
 def order_parse_and_doit(order):
-    #Hash levétel és ellenőrzés
     message=order.split(",")
+
+    #Hash levétel és ellenőrzés
     hash = message.pop()
     h_obj = Crypto.Hash.SHA3_256.new()
     h_obj.update(",".join(message))
@@ -82,19 +83,19 @@ def order_parse_and_doit(order):
         if message[0] == "GWD":
             return actuals.path
         if message[0] == "CWD":
-            print()
+            return "TODO"
             #TODO
         if message[0] == "LST":
             return "List,"+",".join(list_directory(actuals.path))
         if message[0] == "UPL":
-            #TODO: lecserélni szabi függvényére
-            services.listening(1)
+            waitForMessage(actuals.socket, message[1], actuals.path, actuals.AES_key)
             return "Done"
         if message[0] == "DNL":
-            #TODO: lecserélni szabi függvényére
-            services.senddata(1,1)
+            sendFile_AES(actuals.socket, message[1], actuals.AES_key)
+            return "Done"
         if message[0] == "RMF":
             delete_folder(actuals.path+"/"+order[1])
+            return "Done"
         else:
             return "Unknown command"
 
@@ -163,7 +164,7 @@ def main():
             login_binari = waitForMessage(actuals.socket)
             login_string = onReceive(login_binari,"RSA")
 
-            login(login_string)
+            message_to_client(login(login_string))
 
         #Amíg a user ki nem lép
         while True:
@@ -172,6 +173,10 @@ def main():
             #adat feldolgozása
 
             answre=order_parse_and_doit(order_string)
+
+            if answre == "Exit":
+                actuals.user=None
+                return
             message_to_client(answre)
 
 if __name__ == "__main__":
