@@ -1,3 +1,5 @@
+import os
+import socket
 import services
 from config import data as config_data
 import threading
@@ -7,6 +9,7 @@ import Crypto
 from Crypto.Hash import SHA3_256
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
+from Server_functions import onReceive, sendMessage, sendFile_AES, waitForMessage, waitForFile
 
 
 #Ide jön a kliensoldali parancsok lekezelése
@@ -31,11 +34,26 @@ def orders():
 class actuals:
     AES_key=None
     order_count = None
+    socket = None
 
 def main():
+
+    SEPARATOR = "<SEPARATOR>"
+    BUFFER_SIZE = 4096 # send 4096 bytes each time step
+    # the ip address or hostname of the server, the receiver
+    # the port, let's use 5001
+    # the name of file we want to send, make sure it exists
+    filename = "senddata.encripted.bin"
+    # get the file size
+    filesize = os.path.getsize(filename)
+    # create the client socket
+    s = socket.socket()
+    s.connect((config_data.localhost, config_data.server_port))
+    actuals.socket = s
+
+
     data=""
     user_state= UserState.NOT_LOGED_IN
-    # TODO induláskor generáljuk egy AES keyt
     actuals.AES_key = Crypto.Random.get_random_bytes(32)
 
     print("Enter your password!")
@@ -59,34 +77,14 @@ def main():
     cipher_rsa = PKCS1_OAEP.new(RSApublicKey)
     encryptedInitMessage = cipher_rsa.encrypt(initMessage.encode())
 
-    print(encryptedInitMessage)
-
-    # TESZT: üzenetetet ezekkel fájlba írjuk, rsareadtest.py fájlt futtatva beolvashatjuk
-    fff = open('rsaencryptedmsg','wb')
-    fff.write(encryptedInitMessage)
-    fff.close()
-    ## TESZT VÉGE
-
-
-
-    # TODO elküldeni ezt a szerver felé, és várni a nyugtát
-    print("Connected to server!")
+    actuals.socket.send(encryptedInitMessage)
+    answer = waitForMessage(actuals.socket)
 
     while order != "Exit":
         actuals.command_count+=1
         order = orders()
         if order is not None:
-            #Válaszüzenetre váró szál indítása
-            answer_cathcing_thread = threading.Thread(target=services.listening, args=(config_data.client_port,))
-            answer_cathcing_thread.start()
-
-
-            #Adatok elküldése a szervernek
-            services.senddata(config_data.localhost,config_data.server_port)
-
-
-            #Megvárjuk a választ
-            answer_cathcing_thread.join()
+            sendMessage(actuals.socket, order, "AES", actuals.AES_key)
 
 
 if __name__ == "__main__":
