@@ -116,8 +116,8 @@ def order_parse_and_doit(order):
             actuals.waited_file=message[1]
             return "WAIT FILE"
         if message[0] == "DNL":
-            sendFile_AES(actuals.socket, message[1], actuals.AES_key)
-            return "Done"
+            actuals.waited_file=message[1]
+            return "SENDING FILE"
         if message[0] == "RMF":
             deletefile(actuals.path+"/"+message[1])
             return "Done"
@@ -201,20 +201,23 @@ def main():
                 order_string = onReceive(order_binary, "AES", actuals.AES_key)
                 #adat feldolgozása
 
-                answre=order_parse_and_doit(order_string)
+                answer=order_parse_and_doit(order_string)
 
 
-                if answre == "Exit":
+                if answer == "Exit":
                     actuals.user=None
                     actuals.path = source_directory()
                     actuals.AES_key = None
                     actuals.socket.close()
                     actuals.socket=None
                     break
-                message_to_client(answre)
-
-                if answre == "WAIT FILE":
+                message_to_client(answer)
+                if answer == "SENDING FILE":
+                    sendFile_AES(actuals.socket, actuals.waited_file, actuals.AES_key)
+                    actuals.waited_file = None
+                if answer == "WAIT FILE":
                     waitForFile(actuals.socket, actuals.waited_file, actuals.path, actuals.AES_key)
+                    actuals.waited_file = None
 
 if __name__ == "__main__":
     main()

@@ -44,6 +44,8 @@ class actuals:
     order_count = None
     socket = None
     current_file = None
+
+
 def main():
 
     SEPARATOR = "<SEPARATOR>"
@@ -102,7 +104,6 @@ def main():
                 #print()
                 BUFFER_SIZE = 4096
                 filename = actuals.current_file
-                print("IUSHGIUSDHGVUIZS"+filename)
                 with open(filename, mode='rb') as file: # b is important -> binary
                     data = file.read()
                     cipher = AES.new(actuals.AES_key, AES.MODE_EAX)
