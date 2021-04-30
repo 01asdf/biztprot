@@ -14,13 +14,11 @@ from Server_functions import onReceive, sendMessage, sendFile_AES, waitForMessag
 
 
 def make_folder(folder_path):
-    print("MAKE FOLDER")
-    print(folder_path)
     if not exists(folder_path):
         os.makedirs(folder_path)
 
 def delete_folder(folder_path):
-    if exists(folder_path):
+    if exists(folder_path) and has_acces_to_file(folder_path):
         shutil.rmtree(folder_path)
 
 def source_directory():
@@ -55,6 +53,9 @@ def to_directory(path):
     if has_acces_to_file(path):
         actuals.path = path
 
+def login_directory():
+    make_folder(actuals.user)
+    actuals.path = actuals.path+"/"+actuals.user
 
 
 
@@ -86,12 +87,12 @@ def order_parse_and_doit(order):
             delete_folder(actuals.path+"/"+message[1])
             return "Done"
         if message[0] == "GWD":
-            return actuals.path
+            return actuals.path.replace(actuals.roote_path,"")
         if message[0] == "CWD":
-            return "TODO"
-            #TODO
+            to_directory(actuals.path,message[1])
+            return "Done"
         if message[0] == "LST":
-            return "List,"+",".join(list_directory(actuals.path))
+            return ",".join(list_directory(actuals.path))
         if message[0] == "UPL":
             waitForMessage(actuals.socket, message[1], actuals.path, actuals.AES_key)
             return "Done"
@@ -134,9 +135,9 @@ def login(login_message):
     h_obj = SHA3_256.new()
     h_obj.update(",".join(message).encode())
     actuals.user = h_obj.hexdigest()
-    #to_directory(actuals.user)
+    login_directory()
 
-    return "Loged in"
+    return "Logged in"
 
 
 

@@ -60,7 +60,7 @@ def main():
 
     answer=""
     user_state= UserState.NOT_LOGED_IN
-    while answer != "Loged in":
+    while answer != "Logged in":
         print("Enter your password!")
         password = input()
         actuals.order_count = 0
@@ -93,7 +93,11 @@ def main():
         if order is not None:
             sendMessage(actuals.socket, order, "AES", actuals.AES_key)
             answer_binary = waitForMessage(actuals.socket)
-            print(onReceive(answer_binary, "AES", actuals.AES_key))
+            answer = onReceive(answer_binary, "AES", actuals.AES_key)
+            if answer == "AMITAKRASZ":
+                print()
+            else:
+                print(answer)
 
 
 if __name__ == "__main__":
