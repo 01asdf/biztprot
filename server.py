@@ -123,7 +123,7 @@ def login(login_message):
     actuals.last_order_count = 0
     aes_string=message.pop()
     AES_key=base64.b64decode(aes_string.encode())
-    if len(aes_string) != 32:
+    if len(aes_string) != 44:
         return "Error:  AES key not 256 bit long"
 
     actuals.AES_key = AES_key

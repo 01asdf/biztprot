@@ -51,19 +51,20 @@ def main():
     s = socket.socket()
     s.connect((config_data.localhost, config_data.server_port))
     actuals.socket = s
-    actuals.AES_key = base64.b64encode(Crypto.Random.get_random_bytes(32))[0:32]
+    actuals.AES_key = Crypto.Random.get_random_bytes(32)
+    key=base64.b64encode(actuals.AES_key)
 
 
     answer=""
     user_state= UserState.NOT_LOGED_IN
-    while answer != "Loged in\n":
+    while answer != "Loged in":
         print("Enter your password!")
         password = input()
         actuals.order_count = 0
         print("Connecting to server...")
         # sorszam, timestamp, aes, password
         # ezeket hasheljük, hashet vesszővel a végére
-        initMessageWithoutHash = ",".join([password, actuals.AES_key.decode(), str(actuals.order_count), str(services.current_time_milis())])
+        initMessageWithoutHash = ",".join([password, key.decode(), str(actuals.order_count), str(services.current_time_milis())])
 
         h_obj = SHA3_256.new()
         h_obj.update(initMessageWithoutHash.encode())
@@ -80,11 +81,7 @@ def main():
 
         actuals.socket.send(encryptedInitMessage)
         aaa = waitForMessage(actuals.socket)
-        print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEe")
-        print(actuals.AES_key)
         answer = onReceive(aaa, "AES", actuals.AES_key)
-        print("ANSWER")
-        print(answer)
 
     order = ""
     while order != "Exit":

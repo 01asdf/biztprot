@@ -1,8 +1,6 @@
 from Crypto.Cipher import AES
 def sendMessage(socket,string,enc_type,key=bytes(),BUFFER_SIZE=int(4096)):
     bin_rep = string.encode()
-    print("-------------------------------------------")
-    print(key)
     if(enc_type=="AES"):
         cipher = AES.new(key, AES.MODE_EAX)
         ciphertext, tag = cipher.encrypt_and_digest(bin_rep)
@@ -71,6 +69,5 @@ def waitForFile(client_socket,filename,directory,key=bytes(),BUFFER_SIZE=int(409
     print("Fajl erkezett "+filename+" neven!")
 
 def waitForMessage(clientsocket, BUFFER_SIZE=int(4096)):
-    print("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW")
     rec = clientsocket.recv(BUFFER_SIZE)
     return rec
