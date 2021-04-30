@@ -121,8 +121,7 @@ def login(login_message):
     if order_count != 0:
         return "Error: Not the next order"
     actuals.last_order_count = 0
-
-    AES_key=base64.b64decode(message.pop())
+    AES_key=base64.b64decode(message.pop().encode())
     if len(AES_key) != 32:
         return "Error:  AES key not 256 bit long"
 

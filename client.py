@@ -53,13 +53,10 @@ def main():
     actuals.socket = s
     actuals.AES_key = base64.b64encode(Crypto.Random.get_random_bytes(32))
 
+
     answer=""
     user_state= UserState.NOT_LOGED_IN
     while answer != "Loged in":
-
-
-        print("AAAAAAAAAAAAAAAAAAAAAAAAAAaaaa")
-        print(actuals.AES_key)
         print("Enter your password!")
         password = input()
         actuals.order_count = 0
