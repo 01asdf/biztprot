@@ -170,12 +170,15 @@ def main():
 
             l=login(login_string)
             message_to_client(l)
+            print("LOGED IN")
 
         #Amíg a user ki nem lép
         while True:
             order_binary = waitForMessage(actuals.socket)
             if order_binary != b'':
                 order_string = onReceive(order_binary, "AES", actuals.AES_key)
+                print("ORDER STRING")
+                print(order_string)
                 #adat feldolgozása
 
                 answre=order_parse_and_doit(order_string)

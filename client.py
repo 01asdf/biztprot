@@ -23,11 +23,14 @@ def orders():
     input_string = input()
     command = input_string.split(' ')
 
-    if command[0] == ["MKD", "RMD","GWD","CWD","LST","UPL","DNL","RMF"]:
-        command_string = ",".join([command[0],command[1],str(actuals.order_count),str(services.current_time_milis())])
+    if command[0] in ["MKD", "RMD","GWD","CWD","LST","UPL","DNL","RMF"]:
+        if len(command) == 2:
+            command_string = ",".join([command[0],command[1],str(actuals.order_count),str(services.current_time_milis())])
+        else:
+            command_string = ",".join([command[0],str(actuals.order_count),str(services.current_time_milis())])
         h_obj = SHA3_256.new()
-        h_obj.update(command_string)
-        return  ",".join(command_string,h_obj.hexdigest())
+        h_obj.update(command_string.encode())
+        return  ",".join([command_string,h_obj.hexdigest()])
     else:
         print("Invalid command")
         return None
