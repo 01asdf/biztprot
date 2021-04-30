@@ -7,7 +7,7 @@ import os
 from os.path import exists as exists
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
-import Server_functions
+from Server_functions import onReceive, sendMessage, sendFile_AES, waitForMessage, waitForFile
 
 
 def make_folder(folder_path):
@@ -98,42 +98,37 @@ def order_parse_and_doit(order):
         else:
             return "Unknown command"
 
+def message_to_client(string):
+    sendMessage(actuals.socket,string,"AES",actuals.AES_key)
 
-def login():
-    while True:
-        #TODO: Szabi függcénye várakozik
-        login_message=""
+def login(login_message):
+    message=login_message.split(",")
+    hash = message.pop()
+    h_obj = Crypto.Hash.SHA3_256.new()
+    h_obj.update(",".join(message))
+    if h_obj.hexdigest() != hash:
+        return "Error: Hash"
+    #Timestamp ellenőrzés
+    timestamp = int(message.pop())
+    if timestamp + 10*1000 < services.current_time_milis():
+        return "Error: To old message"
 
-        message=login_message.split(",")
-        hash = message.pop()
-        h_obj = Crypto.Hash.SHA3_256.new()
-        h_obj.update(",".join(message))
-        if h_obj.hexdigest() != hash:
-            print()
-            #TODO: Szabi String üzenet: HASH ERROR
+    order_count = int(message.pop())
+    if order_count != 0:
+        return "Error: Not the next order"
+    actuals.last_order_count = 0
 
-        #Timestamp ellenőrzés
-        timestamp = int(message.pop())
-        if timestamp + 10*1000 < services.current_time_milis():
-            #TODO: Szabi
-            return "Error: To old message"
+    AES_key = message.pop()
+    if len(AES_key) != 32:
+        return "Error:  AES key not 256 bit long"
 
-        order_count = int(message.pop())
-        if order_count != 0:
-            #TODO szabi
-            return "Error: Not the next order"
-        actuals.last_order_count = 0
+    #Csak a jelszó maradt a messageben
+    h_obj = Crypto.Hash.SHA3_256.new()
+    h_obj.update(",".join(message))
+    actuals.user = h_obj.hexdigest()
+    to_directory(actuals.user)
 
-        AES_key = message.pop()
-        if len(AES_key) != 32:
-            print()
-            #TODO: Szabi serror
-
-        #Csak a jelszó maradt a messageben
-        h_obj = Crypto.Hash.SHA3_256.new()
-        h_obj.update(",".join(message))
-        actuals.user = h_obj.hexdigest()
-        to_directory(actuals.user)
+    return "Loged in"
 
 
 
@@ -161,24 +156,23 @@ def main():
 
         #A client_socket a csatlakozott kliensel nyitott kapcsolat
         client_socket, address = s.accept()
-
         actuals.socket = client_socket
 
-        
+        #Amíg valaki be nem jelentkezik
+        while actuals.user == None:
+            login_binari = waitForMessage(actuals.socket)
+            login_string = onReceive(login_binari,"RSA")
 
+            login(login_string)
 
-
-        login()
+        #Amíg a user ki nem lép
         while True:
-            if actuals.user == None:
-                login()
-            order = services.listening(config_data.server_port)
+            order_binary = waitForMessage(actuals.socket)
+            order_string = onReceive(order_binary, "AES", actuals.AES_key)
             #adat feldolgozása
 
-            answre=order_parse_and_doit(order)
-
-            #TODO: SZABI STRING KÜLDŐJE
-            services.senddata(config_data.localhost,config_data.client_port)
+            answre=order_parse_and_doit(order_string)
+            message_to_client(answre)
 
 if __name__ == "__main__":
     main()
