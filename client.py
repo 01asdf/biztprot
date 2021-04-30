@@ -1,3 +1,4 @@
+import base64
 import os
 import socket
 import services
@@ -52,36 +53,38 @@ def main():
     actuals.socket = s
 
 
-    data=""
+    answer=""
     user_state= UserState.NOT_LOGED_IN
-    actuals.AES_key = Crypto.Random.get_random_bytes(32)
+    while answer != "Loged in":
+        actuals.AES_key = base64.b64encode(Crypto.Random.get_random_bytes(32)).decode()
 
-    print("Enter your password!")
-    password = input()
-    actuals.order_count = 0
-    print("Connecting to server...")
-    # sorszam, timestamp, aes, password
-    # ezeket hasheljük, hashet vesszővel a végére
-    initMessageWithoutHash = ",".join([password, actuals.AES_key, str(actuals.order_count), str(services.current_time_milis())])
+        print("Enter your password!")
+        password = input()
+        actuals.order_count = 0
+        print("Connecting to server...")
+        # sorszam, timestamp, aes, password
+        # ezeket hasheljük, hashet vesszővel a végére
+        initMessageWithoutHash = ",".join([password, actuals.AES_key, str(actuals.order_count), str(services.current_time_milis())])
 
-    h_obj = SHA3_256.new()
-    h_obj.update(initMessageWithoutHash.encode())
-    initMessageHash = h_obj.hexdigest()
-    initMessage = ",".join([initMessageWithoutHash, initMessageHash])
+        h_obj = SHA3_256.new()
+        h_obj.update(initMessageWithoutHash.encode())
+        initMessageHash = h_obj.hexdigest()
+        initMessage = ",".join([initMessageWithoutHash, initMessageHash])
 
-    pubkey_file = open('publickey.pem','r')
-    RSApublicKey = RSA.import_key(pubkey_file.read())
-    pubkey_file.close()
+        pubkey_file = open('publickey.pem','r')
+        RSApublicKey = RSA.import_key(pubkey_file.read())
+        pubkey_file.close()
 
-    # Encrypt the session key with the public RSA key
-    cipher_rsa = PKCS1_OAEP.new(RSApublicKey)
-    encryptedInitMessage = cipher_rsa.encrypt(initMessage.encode())
+        # Encrypt the session key with the public RSA key
+        cipher_rsa = PKCS1_OAEP.new(RSApublicKey)
+        encryptedInitMessage = cipher_rsa.encrypt(initMessage.encode())
 
-    actuals.socket.send(encryptedInitMessage)
-    answer = waitForMessage(actuals.socket)
+        actuals.socket.send(encryptedInitMessage)
+        answer = waitForMessage(actuals.socket)
 
+    order = ""
     while order != "Exit":
-        actuals.command_count+=1
+        actuals.order_count+=1
         order = orders()
         if order is not None:
             sendMessage(actuals.socket, order, "AES", actuals.AES_key)
