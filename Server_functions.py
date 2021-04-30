@@ -71,5 +71,6 @@ def waitForFile(client_socket,filename,directory,key=bytes(),BUFFER_SIZE=int(409
     print("Fajl erkezett "+filename+" neven!")
 
 def waitForMessage(clientsocket, BUFFER_SIZE=int(4096)):
+    print("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW")
     rec = clientsocket.recv(BUFFER_SIZE)
     return rec

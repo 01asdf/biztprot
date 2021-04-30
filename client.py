@@ -51,12 +51,12 @@ def main():
     s = socket.socket()
     s.connect((config_data.localhost, config_data.server_port))
     actuals.socket = s
-    actuals.AES_key = base64.b64encode(Crypto.Random.get_random_bytes(32))
+    actuals.AES_key = base64.b64encode(Crypto.Random.get_random_bytes(32))[0:32]
 
 
     answer=""
     user_state= UserState.NOT_LOGED_IN
-    while answer != "Loged in":
+    while answer != "Loged in\n":
         print("Enter your password!")
         password = input()
         actuals.order_count = 0
@@ -79,7 +79,12 @@ def main():
         encryptedInitMessage = cipher_rsa.encrypt(initMessage.encode())
 
         actuals.socket.send(encryptedInitMessage)
-        answer = waitForMessage(actuals.socket)
+        aaa = waitForMessage(actuals.socket)
+        print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEe")
+        print(actuals.AES_key)
+        answer = onReceive(aaa, "AES", actuals.AES_key)
+        print("ANSWER")
+        print(answer)
 
     order = ""
     while order != "Exit":

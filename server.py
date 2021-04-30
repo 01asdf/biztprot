@@ -121,8 +121,9 @@ def login(login_message):
     if order_count != 0:
         return "Error: Not the next order"
     actuals.last_order_count = 0
-    AES_key=base64.b64decode(message.pop().encode())
-    if len(AES_key) != 32:
+    aes_string=message.pop()
+    AES_key=base64.b64decode(aes_string.encode())
+    if len(aes_string) != 32:
         return "Error:  AES key not 256 bit long"
 
     actuals.AES_key = AES_key
@@ -138,7 +139,6 @@ def login(login_message):
 
 
 def main():
-
     while True:
         # device's IP address
         SERVER_HOST = "0.0.0.0"
@@ -174,15 +174,16 @@ def main():
         #Amíg a user ki nem lép
         while True:
             order_binary = waitForMessage(actuals.socket)
-            order_string = onReceive(order_binary, "AES", actuals.AES_key)
-            #adat feldolgozása
+            if order_binary != b'':
+                order_string = onReceive(order_binary, "AES", actuals.AES_key)
+                #adat feldolgozása
 
-            answre=order_parse_and_doit(order_string)
+                answre=order_parse_and_doit(order_string)
 
-            if answre == "Exit":
-                actuals.user=None
-                return
-            message_to_client(answre)
+                if answre == "Exit":
+                    actuals.user=None
+                    return
+                message_to_client(answre)
 
 if __name__ == "__main__":
     main()
