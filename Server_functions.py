@@ -1,14 +1,10 @@
 from Crypto.Cipher import AES
 def sendMessage(socket,string,enc_type,key=bytes(),BUFFER_SIZE=int(4096)):
-    print(key)
-    print(type(key))
-    print("--------------------------------------------------------------------------------------")
-    print()
     bin_rep = string.encode()
     if(enc_type=="AES"):
         cipher = AES.new(key, AES.MODE_EAX)
         ciphertext, tag = cipher.encrypt_and_digest(bin_rep)
-        socket.send(cipher.nonce,tag,ciphertext);
+        socket.send(b"".join([cipher.nonce,tag,ciphertext]));
     if(enc_type=="RSA"):
         #RSA encrypt a privát kulccsal
         pass

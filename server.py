@@ -122,13 +122,11 @@ def login(login_message):
         return "Error: Not the next order"
     actuals.last_order_count = 0
 
-    AES_key = message.pop()
-    print(AES_key)
-    print(len(AES_key))
+    AES_key=base64.b64decode(message.pop())
     if len(AES_key) != 32:
         return "Error:  AES key not 256 bit long"
 
-    actuals.AES_key = base64.decode(AES_key)
+    actuals.AES_key = AES_key
 
     #Csak a jelszó maradt a messageben
     h_obj = SHA3_256.new()
@@ -172,8 +170,6 @@ def main():
             login_string = rsa_decode(login_binari)
 
             l=login(login_string)
-            print(l)
-            print(actuals.AES_key)
             message_to_client(l)
 
         #Amíg a user ki nem lép
