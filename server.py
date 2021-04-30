@@ -121,6 +121,7 @@ def login():
             print()
             #TODO: Szabi serror
 
+        #Csak a jelszó maradt a messageben
         h_obj = Crypto.Hash.SHA3_256.new()
         h_obj.update(",".join(message))
         actuals.user = h_obj.hexdigest()
