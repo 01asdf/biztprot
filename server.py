@@ -25,6 +25,8 @@ def source_directory():
     return os.getcwd()
 
 def list_directory(path):
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    print(path)
     if exists(path):
         return os.listdir(path)
     else:
@@ -54,17 +56,20 @@ class actuals:
 
 def path_remove(path):
     char ='1'
+    print("AAAAAAAAAAAAAAAAAa")
     print(path)
     while char !='/':
         char = path[len(path)-1]
         path=path[:len(path)-1]
+    print(path)
     return path
 
 def to_directory(path):
-    if path == ".." and path!= actuals.roote_path:
-        actuals.path = path_remove(actuals.roote_path+"/"+actuals.path)
-    if has_acces_to_file(actuals.path+"/"+path):
-        actuals.path = path
+    if path == ".." and actuals.path!= actuals.roote_path+"/"+actuals.user:
+        actuals.path = path_remove(actuals.path)
+        return
+    elif has_acces_to_file(actuals.path+"/"+path) and path != "..":
+        actuals.path = actuals.path+"/"+path
 
 def login_directory():
     make_folder(actuals.user)
