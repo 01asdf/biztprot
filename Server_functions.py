@@ -50,15 +50,20 @@ def onReceive(bindata,enc_type,key=bytes()):
         return bindata.decode()
 
 def waitForFile(client_socket,filename,directory,key=bytes(),BUFFER_SIZE=int(4096)):
-    with open('todec.bin', "wb") as f: #directory-t is bele kell tenni
+    with open('todec.bin', "wb") as f: 
         while True:
+            #print("Varok")
             bytes_read = client_socket.recv(BUFFER_SIZE)
+            #print(len(bytes_read))
             if not bytes_read:    
                 # nothing is received
                 # file transmitting is done
                 break
             # write to the file the bytes we just received
             f.write(bytes_read)
+            if(len(bytes_read)<BUFFER_SIZE):
+                break
+        print("Kesz a fajl")
     file_in = open("todec.bin", "rb")
     nonce, tag, ciphertext = [ file_in.read(x) for x in (16, 16, -1) ]
     

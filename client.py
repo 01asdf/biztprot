@@ -13,6 +13,7 @@ from Crypto.Cipher import AES, PKCS1_OAEP
 from Server_functions import onReceive, sendMessage, sendFile_AES, waitForMessage, waitForFile
 
 
+
 #Ide jön a kliensoldali parancsok lekezelése
 #Visszaadja a szervernek küldendő adatot
 def orders():
@@ -26,6 +27,9 @@ def orders():
     if command[0] in ["MKD", "RMD","GWD","CWD","LST","UPL","DNL","RMF"]:
         if len(command) == 2:
             command_string = ",".join([command[0],command[1],str(actuals.order_count),str(services.current_time_milis())])
+            if(command[0]=="UPL"):
+                actuals.current_file = command[1]
+                print(command[1])
         else:
             command_string = ",".join([command[0],str(actuals.order_count),str(services.current_time_milis())])
         h_obj = SHA3_256.new()
@@ -39,7 +43,7 @@ class actuals:
     AES_key=None
     order_count = None
     socket = None
-
+    current_file = None
 def main():
 
     SEPARATOR = "<SEPARATOR>"
@@ -95,9 +99,27 @@ def main():
             answer_binary = waitForMessage(actuals.socket)
             answer = onReceive(answer_binary, "AES", actuals.AES_key)
             if answer == "WAIT FILE":
-                print()
+                #print()
+                BUFFER_SIZE = 4096
+                filename = actuals.current_file
+                print("IUSHGIUSDHGVUIZS"+filename)
+                with open(filename, mode='rb') as file: # b is important -> binary
+                    data = file.read()
+                    cipher = AES.new(actuals.AES_key, AES.MODE_EAX)
+                    ciphertext, tag = cipher.encrypt_and_digest(data)
+                    file_out = open("temp.bin", "wb")
+                    [ file_out.write(x) for x in (cipher.nonce, tag, ciphertext) ]
+                    file_out.close()
+                with open('temp.bin', "rb") as f:
+                    #print("Kuldom mar")
+                    while True:
+                        bytes_read = f.read(BUFFER_SIZE)
+                        if not bytes_read:
+                            #print("kesz")
+                            break
+                        actuals.socket.sendall(bytes_read)
             else:
-                print(answer)
+                #print(answer)
 
 
 if __name__ == "__main__":
