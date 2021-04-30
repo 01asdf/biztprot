@@ -1,6 +1,10 @@
 import hashlib
 import shutil
-
+import socket
+import tqdm
+import os
+from Crypto.Cipher import AES
+import time
 import Crypto
 
 import services
@@ -140,17 +144,42 @@ def login():
 
 
 def main():
-    login()
+
     while True:
-        if actuals.user == None:
-            login()
-        order = services.listening(config_data.server_port)
-        #adat feldolgozása
+        # device's IP address
+        SERVER_HOST = "0.0.0.0"
+        SERVER_PORT = config_data.server_port
+        # receive 4096 bytes each time
+        BUFFER_SIZE = 4096
+        SEPARATOR = "<SEPARATOR>"
+        # create the server socket
+        # TCP socket
+        s = socket.socket()
+        # bind the socket to our local address
+        s.bind((SERVER_HOST, SERVER_PORT))
+        # enabling our server to accept connections
+        # 5 here is the number of unaccepted connections that
+        # the system will allow before refusing new connections
+        s.listen(5)
+        print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
+        # accept connection if there is any
 
-        answre=order_parse_and_doit(order)
 
-        #TODO: SZABI STRING KÜLDŐJE
-        services.senddata(config_data.localhost,config_data.client_port)
+        #A client_socket a csatlakozott kliensel nyitott kapcsolat
+        client_socket, address = s.accept()
+
+
+        login()
+        while True:
+            if actuals.user == None:
+                login()
+            order = services.listening(config_data.server_port)
+            #adat feldolgozása
+
+            answre=order_parse_and_doit(order)
+
+            #TODO: SZABI STRING KÜLDŐJE
+            services.senddata(config_data.localhost,config_data.client_port)
 
 if __name__ == "__main__":
     main()
