@@ -96,14 +96,20 @@ def order_parse_and_doit(order):
         actuals.last_order_count = order_count
 
         if message[0].upper() == "MKD":
+            if len(message)<2:
+                return "Error: MKD needs a folder name"
             make_folder(actuals.path+"/"+message[1])
             return "Done"
         if message[0].upper() == "RMD":
+            if len(message)<2:
+                return "Error: RMD needs a folder name"
             delete_folder(actuals.path+"/"+message[1])
             return "Done"
         if message[0].upper() == "GWD":
             return actuals.path.replace(actuals.roote_path,"")
         if message[0].upper() == "CWD":
+            if len(message)<2:
+                return "Error: CWD needs a folder name"
             to_directory(message[1])
             return "Done"
         if message[0] == "LST":
@@ -113,9 +119,13 @@ def order_parse_and_doit(order):
             else:
                 return "Empty"
         if message[0].upper() == "UPL":
+            if len(message)<2:
+                return "Error: UPL needs a file name"
             actuals.waited_file=message[1]
             return "WAIT FILE"
         if message[0].upper() == "DNL":
+            if len(message)<2:
+                return "Error: DNL needs a file name"
             actuals.waited_file=message[1]
             return "SENDING FILE"
         if message[0].upper() == "RMF":
