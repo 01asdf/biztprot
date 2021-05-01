@@ -213,7 +213,7 @@ def main():
                     break
                 message_to_client(answer)
                 if answer == "SENDING FILE":
-                    sendFile_AES(actuals.socket, actuals.waited_file, actuals.AES_key)
+                    sendFile_AES(actuals.socket, actuals.path+"/"+actuals.waited_file, actuals.AES_key)
                     actuals.waited_file = None
                 if answer == "WAIT FILE":
                     waitForFile(actuals.socket, actuals.waited_file, actuals.path, actuals.AES_key)

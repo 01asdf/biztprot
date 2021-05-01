@@ -29,7 +29,8 @@ def orders():
             command_string = ",".join([command[0],command[1],str(actuals.order_count),str(services.current_time_milis())])
             if(command[0].upper()=="UPL"):
                 actuals.current_file = command[1]
-                print(command[1])
+            if(command[0]=="DNL"):
+                actuals.current_down = command[1]
         else:
             command_string = ",".join([command[0],str(actuals.order_count),str(services.current_time_milis())])
         h_obj = SHA3_256.new()
@@ -44,8 +45,7 @@ class actuals:
     order_count = None
     socket = None
     current_file = None
-
-
+    current_down = None
 def main():
 
     SEPARATOR = "<SEPARATOR>"
@@ -93,17 +93,22 @@ def main():
         answer = onReceive(answer_binary, "AES", actuals.AES_key)
 
     order = ""
+    actuals.order_count+=1
     while order != "Exit":
-        actuals.order_count+=1
+
         order = orders()
         if order is not None:
+            actuals.order_count+=1
             sendMessage(actuals.socket, order, "AES", actuals.AES_key)
             answer_binary = waitForMessage(actuals.socket)
             answer = onReceive(answer_binary, "AES", actuals.AES_key)
+
+            if answer == "SENDING FILE":
+                waitForFile(actuals.socket,actuals.current_down,'.',actuals.AES_key)
             if answer == "WAIT FILE":
-                #print()
                 BUFFER_SIZE = 4096
                 filename = actuals.current_file
+                print(filename+" atvitele....")
                 with open(filename, mode='rb') as file: # b is important -> binary
                     data = file.read()
                     cipher = AES.new(actuals.AES_key, AES.MODE_EAX)
@@ -119,6 +124,7 @@ def main():
                             #print("kesz")
                             break
                         actuals.socket.sendall(bytes_read)
+                os.remove("temp.bin")
             else:
                 print(answer)
 
