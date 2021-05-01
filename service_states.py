@@ -1,5 +1,5 @@
 from enum import Enum
 
 class UserState(Enum):
-    LOGED_IN = 1
-    NOT_LOGED_IN = 2
+    LOGGED_IN = 1
+    NOT_LOGGED_IN = 2

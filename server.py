@@ -95,15 +95,15 @@ def order_parse_and_doit(order):
     else:
         actuals.last_order_count = order_count
 
-        if message[0] == "MKD":
+        if message[0].upper() == "MKD":
             make_folder(actuals.path+"/"+message[1])
             return "Done"
-        if message[0] == "RMD":
+        if message[0].upper() == "RMD":
             delete_folder(actuals.path+"/"+message[1])
             return "Done"
-        if message[0] == "GWD":
+        if message[0].upper() == "GWD":
             return actuals.path.replace(actuals.roote_path,"")
-        if message[0] == "CWD":
+        if message[0].upper() == "CWD":
             to_directory(message[1])
             return "Done"
         if message[0] == "LST":
@@ -112,13 +112,13 @@ def order_parse_and_doit(order):
                 return ",".join(list)
             else:
                 return "Empty"
-        if message[0] == "UPL":
+        if message[0].upper() == "UPL":
             actuals.waited_file=message[1]
             return "WAIT FILE"
-        if message[0] == "DNL":
+        if message[0].upper() == "DNL":
             actuals.waited_file=message[1]
             return "SENDING FILE"
-        if message[0] == "RMF":
+        if message[0].upper() == "RMF":
             deletefile(actuals.path+"/"+message[1])
             return "Done"
         else:
@@ -192,7 +192,7 @@ def main():
 
             l=login(login_string)
             message_to_client(l)
-            print("LOGED IN")
+            print("LOGGED IN")
 
         #Amíg a user ki nem lép
         while True:

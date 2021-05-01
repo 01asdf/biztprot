@@ -24,10 +24,10 @@ def orders():
     input_string = input()
     command = input_string.split(' ')
 
-    if command[0] in ["MKD", "RMD","GWD","CWD","LST","UPL","DNL","RMF"]:
+    if command[0].upper() in ["MKD", "RMD","GWD","CWD","LST","UPL","DNL","RMF"]:
         if len(command) == 2:
             command_string = ",".join([command[0],command[1],str(actuals.order_count),str(services.current_time_milis())])
-            if(command[0]=="UPL"):
+            if(command[0].upper()=="UPL"):
                 actuals.current_file = command[1]
                 print(command[1])
         else:
@@ -65,7 +65,7 @@ def main():
 
 
     answer=""
-    user_state= UserState.NOT_LOGED_IN
+    user_state= UserState.NOT_LOGGED_IN
     while answer != "Logged in":
         print("Enter your password!")
         password = input()
