@@ -3,9 +3,6 @@ import os
 import socket
 import services
 from config import data as config_data
-import threading
-from service_states import UserState
-from datetime import datetime
 import Crypto
 from Crypto.Hash import SHA3_256
 from Crypto.PublicKey import RSA
@@ -49,14 +46,7 @@ class actuals:
 def main():
 
     SEPARATOR = "<SEPARATOR>"
-    BUFFER_SIZE = 4096 # send 4096 bytes each time step
-    # the ip address or hostname of the server, the receiver
-    # the port, let's use 5001
-    # the name of file we want to send, make sure it exists
-    filename = "senddata.encripted.bin"
-    # get the file size
-    filesize = os.path.getsize(filename)
-    # create the client socket
+    BUFFER_SIZE = 4096
     s = socket.socket()
     s.connect((config_data.localhost, config_data.server_port))
     actuals.socket = s
@@ -65,7 +55,6 @@ def main():
 
 
     answer=""
-    user_state= UserState.NOT_LOGED_IN
     while answer != "Logged in":
         print("Enter your password!")
         password = input()
@@ -84,7 +73,6 @@ def main():
         RSApublicKey = RSA.import_key(pubkey_file.read())
         pubkey_file.close()
 
-        # Encrypt the session key with the public RSA key
         cipher_rsa = PKCS1_OAEP.new(RSApublicKey)
         encryptedInitMessage = cipher_rsa.encrypt(initMessage.encode())
 
@@ -117,11 +105,9 @@ def main():
                     [ file_out.write(x) for x in (cipher.nonce, tag, ciphertext) ]
                     file_out.close()
                 with open('temp.bin', "rb") as f:
-                    #print("Kuldom mar")
                     while True:
                         bytes_read = f.read(BUFFER_SIZE)
                         if not bytes_read:
-                            #print("kesz")
                             break
                         actuals.socket.sendall(bytes_read)
                 os.remove("temp.bin")
