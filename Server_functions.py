@@ -5,10 +5,6 @@ def sendMessage(socket,string,enc_type,key=bytes(),BUFFER_SIZE=int(4096)):
         cipher = AES.new(key, AES.MODE_EAX)
         ciphertext, tag = cipher.encrypt_and_digest(bin_rep)
         socket.send(b"".join([cipher.nonce,tag,ciphertext]));
-    if(enc_type=="RSA"):
-        #RSA encrypt a privát kulccsal
-        pass
-        socket.send(ciphertext);
     if(enc_type=="RAW"):
         socket.send(bin_rep) #Kiküldés nyers formában
 
@@ -25,13 +21,9 @@ def sendFile_AES(socket,filename,key=bytes(),BUFFER_SIZE=int(4096)): #előtte ü
     file_out.close()
     with open(encfile, "rb") as f:
         while True:
-            # read the bytes from the file
             bytes_read = f.read(BUFFER_SIZE)
             if not bytes_read:
-                # file transmitting is done
                 break
-            # we use sendall to assure transimission in 
-            # busy networks
             socket.sendall(bytes_read)
     print(filename+" elkuldve!")
 
@@ -43,23 +35,15 @@ def onReceive(bindata,enc_type,key=bytes()):
         cipher = AES.new(key, AES.MODE_EAX, nonce)
         raw = cipher.decrypt_and_verify(ciphertext,tag)
         return raw.decode()
-    if(enc_type=="RSA"):
-        pass #RSA decrypt a privát kulccsal
-        #return decrypted
     if(enc_type=="RAW"):
         return bindata.decode()
 
 def waitForFile(client_socket,filename,directory,key=bytes(),BUFFER_SIZE=int(4096)):
     with open('todec.bin', "wb") as f: 
         while True:
-            #print("Varok")
             bytes_read = client_socket.recv(BUFFER_SIZE)
-            #print(len(bytes_read))
-            if not bytes_read:    
-                # nothing is received
-                # file transmitting is done
+            if not bytes_read:
                 break
-            # write to the file the bytes we just received
             f.write(bytes_read)
             if(len(bytes_read)<BUFFER_SIZE):
                 break

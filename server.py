@@ -106,7 +106,7 @@ def order_parse_and_doit(order):
             delete_folder(actuals.path+"/"+message[1])
             return "Done"
         if message[0].upper() == "GWD":
-            return actuals.path.replace(actuals.roote_path,"")
+            return actuals.path.replace(actuals.roote_path+"/"+actuals.user,"")
         if message[0].upper() == "CWD":
             if len(message)<2:
                 return "Error: CWD needs a folder name"
@@ -209,10 +209,9 @@ def main():
             order_binary = waitForMessage(actuals.socket)
             if order_binary != b'':
                 order_string = onReceive(order_binary, "AES", actuals.AES_key)
+
                 #adat feldolgozása
-
                 answer=order_parse_and_doit(order_string)
-
 
                 if answer == "Exit":
                     actuals.user=None
@@ -221,6 +220,7 @@ def main():
                     actuals.socket.close()
                     actuals.socket=None
                     break
+
                 message_to_client(answer)
                 if answer == "SENDING FILE":
                     sendFile_AES(actuals.socket, actuals.path+"/"+actuals.waited_file, actuals.AES_key)
