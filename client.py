@@ -94,19 +94,17 @@ def main():
 
     order = ""
     while order != "Exit":
-        actuals.order_count+=1
+
         order = orders()
         if order is not None:
+            actuals.order_count+=1
             sendMessage(actuals.socket, order, "AES", actuals.AES_key)
             answer_binary = waitForMessage(actuals.socket)
             answer = onReceive(answer_binary, "AES", actuals.AES_key)
 
             if answer == "SENDING FILE":
-                print("Fajl erkezik:"+actuals.current_down)
                 waitForFile(actuals.socket,actuals.current_down,'.',actuals.AES_key)
-                print("kesz")
             if answer == "WAIT FILE":
-                #print()
                 BUFFER_SIZE = 4096
                 filename = actuals.current_file
                 print(filename+" atvitele....")
