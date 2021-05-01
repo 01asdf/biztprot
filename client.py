@@ -93,6 +93,7 @@ def main():
         answer = onReceive(answer_binary, "AES", actuals.AES_key)
 
     order = ""
+    actuals.order_count+=1
     while order != "Exit":
 
         order = orders()
